@@ -1,45 +1,27 @@
-import mongoose, { Mongoose } from "mongoose";
-import {Model , Types} from 'mongoose';
 
-const Schema = mongoose.Schema;
-const ObjectId = Schema.ObjectId;
+import mongoose, {model, Schema} from "mongoose";
 
-const userSchema = new Schema ({
-    username : {type: String , required:true , unique:true},
-    password : {type : String , required : true}
+mongoose.connect("mongodb+srv://abhijitam:yY9PI6KA3S2eXLGL@cluster0.wszla.mongodb.net/")
+
+const UserSchema = new Schema({
+    username: {type: String, unique: true},
+    password: String
 })
 
-const tagSchema = new mongoose.Schema({
-    title : {type : String , required : true , unique : true}
+export const UserModel = model("User", UserSchema);
+
+const ContentSchema = new Schema({
+    title: String,
+    link: String,
+    tags: [{type: mongoose.Types.ObjectId, ref: 'Tag'}],
+    type: String,
+    userId: {type: mongoose.Types.ObjectId, ref: 'User', required: true },
 })
 
-const Tag = mongoose.model('Tag' , tagSchema);
-
-module.exports = Tag ;
-
-const contentTypes = ['image' , 'video' , 'audio' , 'article'];
-
-const contentSchema = new Schema({
-    link : {type: String , required : true},
-    type : {type : String , enum : contentTypes , required : true},
-    title : { type : String , required : true} ,
-    tags : [{type : Types.ObjectId, ref:'Tag'}],
-    userId : {type: Types.ObjectId , ref : 'User' , required:true}
-});
-
-const linkSchema = new mongoose.Schema({
-    hash : {types:String , required: true},
-    userId : {type:mongoose.Schema.Types.ObjectId, ref:'User' , required: true}
+const LinkSchema = new Schema({
+    hash: String,
+    userId: {type: mongoose.Types.ObjectId, ref: 'User', required: true, unique: true },
 })
 
-
-
-// contentSchema.pre('save' , async function(next){
-//     const user = await User.findById(this.userId);
-//     if(!user){
-//         throw new Error('user does not exist');
-//     }
-//     next();
-// });
-
-export const UserModel = new Model(userSchema, "User");
+export const LinkModel = model("Links", LinkSchema);
+export const ContentModel = model("Content", ContentSchema);
